@@ -1,6 +1,7 @@
 const express = require('express')
 const path = require('path')
 const fs = require('fs')
+const mm = require('music-metadata')
 
 let object
 const playlist = []
@@ -11,17 +12,30 @@ fs.readdir('static/mp3', (err, dirs) => {
             if (err) console.log(err)
             else {
                 const arrayOfFiles = files.map(songName => {
-                    const stats = fs.statSync('static/mp3/' + dirs[0] + '/' + songName)
-                    return obj = {
-                        dir: dirs[0],
-                        file: songName,
-                        size: (stats.size / (1024 * 1024)).toFixed(2) + 'MB'
+                    return new Promise((resolve, reject) => {
+                        const stats = fs.statSync(`static/mp3/${dirs[0]}/${songName}`)
+                        mm.parseFile(`static/mp3/${dirs[0]}/${songName}`)
+                            .then(metadata => {
+                                const { duration } = metadata.format
+                                obj = {
+                                    dir: dirs[0],
+                                    file: songName,
+                                    size: (stats.size / (1024 * 1024)).toFixed(2) + 'MB',
+                                    duration
+                                }
+                                resolve(obj)
+                            })
+                            .catch(err => {
+                                reject(err)
+                            });
+                    })
+                })
+                Promise.all(arrayOfFiles).then(results => {
+                    object = {
+                        dirs,
+                        files: results
                     }
                 })
-                object = {
-                    dirs,
-                    files: arrayOfFiles
-                }
             }
         })
     }

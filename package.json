@@ -14,5 +14,8 @@
   },
   "engines": {
     "node": "10.14.1"
+  },
+  "devDependencies": {
+    "music-metadata": "^6.4.0"
   }
 }
