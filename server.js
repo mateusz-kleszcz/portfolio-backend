@@ -33,7 +33,13 @@ app.use(express.urlencoded())
 
 app.get('/api/albums', (req, res) => {
     res.end(JSON.stringify(object, null, 4))
-});
+})
+
+app.get('/api/albums/:album/:name', (req, res) => {
+    const { album, name } = req.params
+    const songDir = `/static/mp3/${album}/${name}.mp3`
+    res.sendFile(path.join(__dirname, songDir))
+})
 
 app.post('/api/albums', async (req, res) => {
     const { albumName } = req.body
